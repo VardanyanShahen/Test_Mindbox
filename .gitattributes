@@ -1,2 +1,40 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+spec:
+  replicas: 4  # Количество экземпляров подов в deployment
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app
+        image: my-app-image
+        resources:
+          requests:
+            cpu: "0.5"  # Начальная заявка CPU для справления с пиковой нагрузкой
+            memory: "128Mi"  # Заявка памяти всегда "ровно" в 128М
+          limits:
+            cpu: "1"  # Максимально разрешенное потребление CPU
+            memory: "128Mi"  # Максимально разрешенное потребление памяти
+        readinessProbe:
+          exec:
+            command: 
+              - /bin/sh
+              - -c
+              - sleep 10  # Ожидание 10 секунд перед проверкой готовности пода
+          initialDelaySeconds: 10  # Ожидание 10 секунд перед первой проверкой готовности пода
+          periodSeconds: 10  # Периодичность проверки готовности пода каждые 10 секунд
+        livenessProbe:
+          exec:
+            command: 
+              - /bin/sh
+              - -c
+              - exit 0  # Простая проверка активности пода
+          initialDelaySeconds: 30  # Ожидание 30 секунд перед первой проверкой активности пода
+          periodSeconds: 30  # Периодичность проверки активности пода каждые 30 секунд
